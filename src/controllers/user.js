@@ -83,9 +83,9 @@ class UserController {
     const { accountNumber } = req.params;
     try {
       const user = await UserModel.updateUser(accountNumber, req.body);
+
       if (user)
         return res.status(200).json({
-          data: user,
           message: "User updated",
         });
       res.status(404).json({ error: "User not found" });
@@ -98,6 +98,7 @@ class UserController {
     const { accountNumber } = req.params;
     try {
       const user = await UserModel.deleteUser(accountNumber);
+
       if (user) return res.status(200).json({ message: "User deleted" });
       res.status(404).json({ error: "User not found" });
     } catch (error) {

@@ -1,4 +1,5 @@
 const User = require("../schema/user.js");
+const joi = require("joi");
 
 class UserModel {
   async createUser(data) {
@@ -19,18 +20,36 @@ class UserModel {
   }
 
   async updateUser(accountNumber, data) {
-    return await User.findOneAndUpdate(
-      { accountNumber },
-      { $set: data },
-      { new: true }
-    );
+    const validField = joi.object({
+      userName: joi.string().required(),
+      accountNumber: joi.string().required(),
+      emailAddress: joi.string().required(),
+      identityNumber: joi.string().required(),
+    });
+
+    const { error } = validField.validate(data);
+
+    if (error) return error;
+
+    const user = await User.findOne({ accountNumber });
+    if (user) {
+      return await user.updateOne({
+        userName: data.userName,
+        accountNumber: data.accountNumber,
+        emailAddress: data.emailAddress,
+        identityNumber: data.identityNumber,
+      });
+    }
+
+    return null;
   }
 
   async deleteUser(accountNumber) {
-    return await User.findOneAndDelete(
-      { accountNumber },
-      { useFindAndModify: false }
-    );
+    const user = await User.findOne({ accountNumber });
+    if (user) {
+      return await user.deleteOne();
+    }
+    return null;
   }
 }
 
